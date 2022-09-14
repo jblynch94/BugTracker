@@ -10,6 +10,7 @@ namespace BugTracker.Models
         public int TicketId { get; set; }
         public string? PropertyName { get; set; }
         public string? Description { get; set; }
+        [DataType(DataType.Date)]
         public DateTime Created { get; set; }
         public string? OldValue { get; set; }
         public string? NewValue { get; set; }

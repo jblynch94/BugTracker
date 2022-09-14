@@ -16,8 +16,10 @@ namespace BugTracker.Models
         public string? Message { get; set; }
         public DateTime Created { get; set; }
         //foregn key
+        [Required]
         public string? SenderId { get; set; }
         //foregn key
+        [Required]
         public string? RecipentId { get; set; }
         public int NotificationTypeId { get; set; }
         public bool HasBeenViewed { get; set; }
