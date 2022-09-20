@@ -22,11 +22,13 @@ namespace BugTracker.Areas.Identity.Pages.Account
     {
         private readonly SignInManager<BTUser> _signInManager;
         private readonly ILogger<LoginModel> _logger;
+        private readonly IConfiguration _configuration;
 
-        public LoginModel(SignInManager<BTUser> signInManager, ILogger<LoginModel> logger)
+        public LoginModel(SignInManager<BTUser> signInManager, ILogger<LoginModel> logger, IConfiguration configuration)
         {
             _signInManager = signInManager;
             _logger = logger;
+            _configuration = configuration;
         }
 
         /// <summary>

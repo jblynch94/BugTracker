@@ -92,7 +92,7 @@
             </td>
             <td>
                 @if(string.IsNullOrEmpty(item.DeveloperUserId)){
-                    <a class="btn btn-sm btn-outline-info" asp-action="AssignDeveloper" asp-route-ticketId="@item.Id">Assign Developer</a>
+                        <a class="btn btn-sm btn-outline-info" asp-action="AssignDeveloper" asp-route-id="@item.Id">Assign Developer</a>
                 }else{
                         <p>@item.DeveloperUser!.FullName</p>
 

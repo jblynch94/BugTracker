@@ -176,10 +176,11 @@ namespace BugTracker.Services
                     if(await _rolesService.IsUserInRoleAsync(member, nameof(BTRoles.ProjectManager)))
                     {
                         //Remove BTUser from Project
-                        await RemoveUserFromProjectAsync(member, projectId);
-                    }
+                        //await RemoveUserFromProjectAsync(member, projectId);
+                        return member;
+                    } 
                 }
-                return null!;
+               return null!;
             }
             catch (Exception)
             {

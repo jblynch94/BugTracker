@@ -3,13 +3,15 @@
 namespace BugTracker.Services.Interfaces
 {
     public interface IBTTicketService
-    {
-        //public Task AddProjectAsync(Project project);
-        //public Task ArchiveProjectAsync(int projectId);
-        //public Task RestoreProjectAsync(int projectId);
-        //public Task UpdateProjectAsync(Project project);
+    { 
 
         public Task<Ticket> GetTicketAsNoTrackingAsync(int ticketId, int companyId);
-
+        public Task<List<Ticket>> GetAllTicketsAsync();
+        public Task<List<Ticket>> GetArchivedTicketsAsync();
+        public Task<List<Ticket>> GetUnassignedTicketsAsync();  
+        public Task<bool> AssignDeveloperAsync(string userId, int ticketId);
+        public Task<Ticket> GetTicketByIdAsync(int? ticketId);
+        public Task<bool> AddCommentAsync(TicketComment ticketComment);
+        public Task AddTicketAttachmentAsync(TicketAttachment ticketAttachment);
     }
 }

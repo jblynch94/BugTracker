@@ -26,14 +26,16 @@ namespace BugTracker.Controllers
         private readonly IImageService _imageService;
         private readonly IBTProjectService _btProjectService;
         private readonly IBTRolesService _btRolesService;
+        private readonly IBTCompanyService _btCompanyService;
 
-        public ProjectsController(ApplicationDbContext context, UserManager<BTUser> userManager, IImageService imageService, IBTProjectService btProjectService, IBTRolesService btRolesService)
+        public ProjectsController(ApplicationDbContext context, UserManager<BTUser> userManager, IImageService imageService, IBTProjectService btProjectService, IBTRolesService btRolesService, IBTCompanyService btCompanyService)
         {
             _context = context;
             _userManager = userManager;
             _imageService = imageService;
             _btProjectService = btProjectService;
             _btRolesService = btRolesService;
+            _btCompanyService = btCompanyService;
         }
 
         // GET: Projects
@@ -44,6 +46,126 @@ namespace BugTracker.Controllers
             List<Project> projects = await _btProjectService.GetAllProjectsByCompanyIdAsync(companyId);
 
             return View(projects);
+        }
+
+        //Get: AssignUsers
+        [Authorize(Roles = "Admin, ProjectManager")]
+        public async Task<IActionResult> AssignMembers(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            AssignUsersViewModel model = new();
+
+            //Get CompanyId
+            int companyId = User.Identity!.GetCompanyId();
+
+            model.Project = await _btProjectService.GetProjectByIdAsync(id.Value);
+
+            //Get current Members (if exists)
+            List<string> members = model.Project.Members!.Select(m => m.Id).ToList();
+
+            //Service call to RoleService
+            model.MemberList = new MultiSelectList(await _btCompanyService.GetMemebersAsync(companyId), "Id", "FullName", members);
+
+            return View(model);
+        }
+
+        //Post: AssignUsers
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AssignMembers(AssignUsersViewModel model)
+        {
+            //Get current Members (if exists)
+            List<string> members = model.Project!.Members!.Select(m => m.Id).ToList();
+
+            if (model.Members != null)
+            {
+      
+                foreach(string memberId in model.Members)
+                {
+                    BTUser? member = _context.Users.FirstOrDefault(u => u.Id == memberId);
+                    await _btProjectService.AddUserToProjectAsync(member!, model.Project!.Id);
+
+                }
+
+                return RedirectToAction(nameof(Index));
+            }
+            //return RedirectToAction(nameof(AssignProjectManager), new { id = model.Project!.Id });
+
+            ModelState.AddModelError("Members", "Please assign some Members");
+
+            //Get CompanyId
+            int companyId = User.Identity!.GetCompanyId();
+
+            model.Project = await _btProjectService.GetProjectByIdAsync(model.Project!.Id);
+
+            //Service call to RoleService
+            model.MemberList = new MultiSelectList(await _btCompanyService.GetMemebersAsync(companyId), "Id", "FullName", members);
+
+            return View(model);
+        }
+
+        //Get: RemoveUsers
+        [Authorize(Roles = "Admin, ProjectManager")]
+        public async Task<IActionResult> RemoveMembers(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            AssignUsersViewModel model = new();
+
+            //Get CompanyId
+            int companyId = User.Identity!.GetCompanyId();
+
+            model.Project = await _btProjectService.GetProjectByIdAsync(id.Value);
+
+            //Get current Members (if exists)
+            List<string> members = model.Project.Members!.Select(m => m.Id).ToList();
+
+            //Service call to RoleService
+            model.MemberList = new MultiSelectList(await _btCompanyService.GetMemebersAsync(companyId), "Id", "FullName", members);
+
+            return View(model);
+        }
+
+        //Post: RemoveUsers
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RemoveMembers(AssignUsersViewModel model)
+        {
+            //Get current Members (if exists)
+            List<string> members = model.Project!.Members!.Select(m => m.Id).ToList();
+
+            if (model.Members != null)
+            {
+
+                foreach (string memberId in model.Members)
+                {
+                    BTUser? member = _context.Users.FirstOrDefault(u => u.Id == memberId);
+                    await _btProjectService.RemoveUserFromProjectAsync(member!, model.Project!.Id);
+
+                }
+
+                return RedirectToAction(nameof(Index));
+            }
+            //return RedirectToAction(nameof(AssignProjectManager), new { id = model.Project!.Id });
+
+            ModelState.AddModelError("Members", "Please assign some Members");
+
+            //Get CompanyId
+            int companyId = User.Identity!.GetCompanyId();
+
+            model.Project = await _btProjectService.GetProjectByIdAsync(model.Project!.Id);
+
+            //Service call to RoleService
+            model.MemberList = new MultiSelectList(await _btCompanyService.GetMemebersAsync(companyId), "Id", "FullName", members);
+
+            return View(model);
         }
 
         //Get: AssignProjectManager
@@ -58,7 +180,7 @@ namespace BugTracker.Controllers
             AssignPMViewModel model = new();
 
             //Get CompanyId
-            int companyId = (await _userManager.GetUserAsync(User)).CompanyId;
+            int companyId = User.Identity!.GetCompanyId();
 
             model.Project = await _btProjectService.GetProjectByIdAsync(id.Value);
 
@@ -71,6 +193,7 @@ namespace BugTracker.Controllers
             return View(model);
         }
 
+        //Post: AssignProjectManager
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AssignProjectManager(AssignPMViewModel model)
@@ -152,7 +275,11 @@ namespace BugTracker.Controllers
                     project.ImageFileType = project.ImageFormFile.ContentType;
                 }
 
-                await _btProjectService.AddProjectAsync(project);
+                if (!User.IsInRole(nameof(BTRoles.DemoUser)))
+                {
+                    await _btProjectService.AddProjectAsync(project);
+
+                }
 
                 return RedirectToAction(nameof(Index));
             }
@@ -290,9 +417,14 @@ namespace BugTracker.Controllers
         }
         public async Task<IActionResult> UnassignedProjects()
         {
+            var companyId = User.Identity!.GetCompanyId();
+            List<Project> projects = await _btProjectService.GetAllProjectsByCompanyIdAsync(companyId);
             
-            var applicationDbContext = _context.Projects.Include(p => p.Company).Include(p => p.ProjectPriority);
-            return View(await applicationDbContext.ToListAsync());
+            
+               
+            
+            
+            return View(projects);
         }
     }
 }

@@ -1,14 +1,16 @@
 ﻿@model IEnumerable<BugTracker.Models.Project>
 
+@using BugTracker.Services.Interfaces
+
+@inject IBTProjectService _btProjectService
+
 @{
     ViewData["Title"] = "Index";
 }
 
 <h1>Index</h1>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
+
 <table class="table">
     <thead>
         <tr>
@@ -48,6 +50,8 @@
     <tbody>
         @foreach (var item in Model)
         {
+            @if (await _btProjectService.GetProjectManagerAsync(item.Id)! == null)
+            {
                 <tr>
                     <td>
                         @Html.DisplayFor(modelItem => item.Name)
@@ -85,7 +89,7 @@
                         <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
                     </td>
                 </tr>
-            
+            }
         }
     </tbody>
 </table>
