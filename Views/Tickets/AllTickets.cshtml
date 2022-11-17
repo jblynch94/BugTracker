@@ -25,12 +25,6 @@
                 @Html.DisplayNameFor(model => model.Updated)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Archived)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ArchivedByProject)
-            </th>
-            <th>
                 @Html.DisplayNameFor(model => model.Project)
             </th>
             <th>
@@ -43,10 +37,10 @@
                 @Html.DisplayNameFor(model => model.TicketStatus)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.DeveloperUser)
+                @Html.DisplayNameFor(model => model.SubmitterUser)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.SubmitterUser)
+                @Html.DisplayNameFor(model => model.DeveloperUser)
             </th>
             <th></th>
         </tr>
@@ -68,33 +62,36 @@
                     @Html.DisplayFor(modelItem => item.Updated)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.Archived)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.ArchivedByProject)
-                </td>
-                <td>
                     @Html.DisplayFor(modelItem => item.Project!.Description)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.TicketPriority!.Id)
+                    @Html.DisplayFor(modelItem => item.TicketPriority!.Name)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.TicketType!.Id)
+                    @Html.DisplayFor(modelItem => item.TicketType!.Name)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.TicketStatus!.Id)
+                    @Html.DisplayFor(modelItem => item.TicketStatus!.Name)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.DeveloperUser!.Id)
+                    @Html.DisplayFor(modelItem => item.SubmitterUser!.FullName)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.SubmitterUser!.Id)
+                    @if (string.IsNullOrEmpty(item.DeveloperUserId))
+                    {
+                        <a class="btn btn-sm btn-outline-info" asp-action="AssignDeveloper" asp-route-id="@item.Id">Assign Developer</a>
+                    }
+                    else
+                    {
+                        <p>@item.DeveloperUser!.FullName</p>
+
+
+                    }
                 </td>
                 <td>
                     <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
                     <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                    <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                    <a asp-action="Archive" asp-route-id="@item.Id">Archive</a>
                 </td>
             </tr>
         }

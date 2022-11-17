@@ -106,7 +106,7 @@ namespace BugTracker.Areas.Identity.Pages.Account
 
         public async Task<IActionResult> OnPostAsync(string returnUrl = null)
         {
-            returnUrl ??= Url.Content("~/");
+            returnUrl ??= Url.Content("~/home/Dashboard");
 
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
 
@@ -135,7 +135,6 @@ namespace BugTracker.Areas.Identity.Pages.Account
                     return Page();
                 }
             }
-
 
             // If we got this far, something failed, redisplay form
             return Page();

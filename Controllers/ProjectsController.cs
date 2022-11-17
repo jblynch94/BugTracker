@@ -382,7 +382,7 @@ namespace BugTracker.Controllers
             var project = await _context.Projects.FindAsync(id);
             if (project != null)
             {
-                _context.Projects.Remove(project);
+                project.Archived = true;
             }
 
             await _context.SaveChangesAsync();
@@ -425,6 +425,44 @@ namespace BugTracker.Controllers
             
             
             return View(projects);
+        }
+
+        [HttpPost]
+        public async Task<JsonResult> GglProjectTickets()
+        {
+            int companyId = User.Identity!.GetCompanyId();
+
+            List<Project> projects = await _btProjectService.GetAllProjectsByCompanyIdAsync(companyId);
+
+            List<object> chartData = new();
+            chartData.Add(new object[] { "ProjectName", "TicketCount" });
+
+            foreach (Project prj in projects)
+            {
+                chartData.Add(new object[] { prj.Name!, prj.Tickets!.Count() });
+            }
+
+            return Json(chartData);
+        }
+
+        [HttpPost]
+        public async Task<JsonResult> GglProjectPriority()
+        {
+            int companyId = User.Identity!.GetCompanyId();
+
+            List<Project> projects = await _btProjectService.GetAllProjectsByCompanyIdAsync(companyId);
+
+            List<object> chartData = new();
+            chartData.Add(new object[] { "Priority", "Count" });
+
+
+            foreach (string priority in Enum.GetNames(typeof(BTProjectPriorities)))
+            {
+                int priorityCount = (await _btProjectService.GetAllProjectsByPriorityAsync(companyId, priority)).Count();
+                chartData.Add(new object[] { priority, priorityCount });
+            }
+
+            return Json(chartData);
         }
     }
 }

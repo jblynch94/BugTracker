@@ -1,10 +1,14 @@
 ﻿@model IEnumerable<BugTracker.Models.Project>
 
+@using BugTracker.Services.Interfaces
+
+@inject IBTProjectService _projectService
+
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "All Projects";
 }
 
-<h1>Index</h1>
+<h1>All Projects</h1>
 
 <p>
     <a asp-action="Create">Create New</a>
@@ -26,9 +30,6 @@
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.EndDate)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ImageFile)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.Archived)
@@ -62,9 +63,6 @@
                     @Html.DisplayFor(modelItem => item.EndDate)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.ImageFile)
-                </td>
-                <td>
                     @Html.DisplayFor(modelItem => item.Archived)
                 </td>
                 <td>
@@ -73,10 +71,22 @@
                 <td>
                     @Html.DisplayFor(modelItem => item.ProjectPriority!.Id)
                 </td>
+                @if ((await _projectService.GetProjectManagerAsync(item.Id)!) != null)
+                {
+                    <td>@((await _projectService.GetProjectManagerAsync(item.Id)!).FullName)</td>
+                }
+                else
+                {
+                    <td>No Project Manager Assigned</td>
+                }
+                <td>
+                </td>
                 <td>
                     <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
                     <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                    <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                    <a asp-action="AssignProjectManager" asp-route-id="@item.Id">AssignProjectManager</a> |
+                    <a asp-action="AssignMembers" asp-route-id="@item.Id">Add User To Project</a>|
+                    <a asp-action="Archive" asp-route-id="@item.Id">Archive</a>
                 </td>
             </tr>
         }

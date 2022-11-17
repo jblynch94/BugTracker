@@ -78,8 +78,9 @@ namespace BugTracker.Services
 				throw;
 			}
         }
+       
 
-		public async Task<bool> IsUserInRoleAsync(BTUser member, string roleName)
+        public async Task<bool> IsUserInRoleAsync(BTUser member, string roleName)
 		{
 			try
 			{
