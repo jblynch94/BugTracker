@@ -48,11 +48,11 @@
                                 @*Project end date*@
                                 <li><strong>Deadline:</strong> <span class=""> @Model.Project!.EndDate</</span></li>
                                 @*Ticket type*@
-                                <li><strong>Type:</strong> <span class="">@Model.TicketType</span></li>
+                                <li><strong>Type:</strong> <span class="">@Model.TicketType!.Name</span></li>
                                 @*Ticket priority*@
-                                <li><strong>Priority:</strong> <span class="">@Model.TicketPriority</span></li>
+                                <li><strong>Priority:</strong> <span class="">@Model.TicketPriority!.Name</span></li>
                                 @*Ticket status*@
-                                <li><strong>Status:</strong> <span class="">@Model.TicketStatus</span></li>
+                                <li><strong>Status:</strong> <span class="">@Model.TicketStatus!.Name</span></li>
                             </ul>
                         </div>
                     </div>
@@ -165,7 +165,7 @@
                             @foreach(TicketHistory history in Model.History!){
                                 <p>@history.PropertyName</p>
                                 <p>@history.Description</p>
-                                <p>@history.Created</p>
+                                <p>@history.Created.Date</p>
                             }
                         </div>
                     </div>

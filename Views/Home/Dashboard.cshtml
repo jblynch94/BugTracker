@@ -365,7 +365,11 @@
                             @* Looop over Company members. Display Name and Role *@
                             @foreach (BTUser member in Model.Members!)
                             {
-                                <p>@member.FullName ( @_rolesService.GetUserRolesAsync(member).ToString() )</p>
+                                @if (await _rolesService.GetUserRolesAsync(member)! != null)
+                                {
+                                    <p>@member.FullName (@await _rolesService.GetUserRolesAsync(member))</p>
+                                }
+                                
                             }
                         </div>
                     </div>
